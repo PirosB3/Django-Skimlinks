@@ -9,15 +9,17 @@ class SkimlinksLinkNode(template.Node):
     def __init__(self, text, link, product_id):
         self.text = text
         self.product_id = product_id
-        self.link = urllib.quote_plus(link)
+        self.link = link
 
     def generate_link(self):
         return "".join([SKIMLINK_API, "?id=", self.product_id, "&url=",
-            self.link, "&xs=1"])
+            urllib.quote_plus(link), "&xs=1"])
 
     def render(self, context):
+        if not self.text:
+            return self.generate_link()
         return '<a rel="nofollow" href="%s">%s</a>' % (self.generate_link(),
-                self.text)
+                self.text.replace('"', ''))
 
 def do_skim(parser, token):
     """returns an affiliate link"""
@@ -26,17 +28,22 @@ def do_skim(parser, token):
     product_id = settings.SKIMLINKS_PRODUCT_ID
 
     # Get data from token
-    contents = token.split_contents()
-    if len(contents) != 3:
+    contents = list(token.split_contents())
+    len_contents = len(contents)
+    if len_contents < 2:
         raise template.TemplateSyntaxError("Syntax incorrect")
-    text, link = contents[1:]
+    if len_contents == 3:
+        text, link = contents[1:]
+    else:
+        link = contents[1]
+        text = None
 
     if not product_id:
         raise template.TemplateSyntaxError("Please insert Skimlinks key")
 
     # Return node
     return SkimlinksLinkNode(
-        text.replace('"', ''),
+        text,
         link, product_id
     )
 
