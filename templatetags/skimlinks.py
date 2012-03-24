@@ -13,7 +13,7 @@ class SkimlinksLinkNode(template.Node):
 
     def generate_link(self):
         return "".join([SKIMLINK_API, "?id=", self.product_id, "&url=",
-            urllib.quote_plus(link), "&xs=1"])
+            urllib.quote_plus(self.link), "&xs=1"])
 
     def render(self, context):
         if not self.text:
@@ -24,28 +24,30 @@ class SkimlinksLinkNode(template.Node):
 def do_skim(parser, token):
     """returns an affiliate link"""
 
-    # Get product ID from settings and link
-    product_id = settings.SKIMLINKS_PRODUCT_ID
+    # Get product ID from settings and raise error is PRODUCT_ID unavaliable.
+    product_id = getattr(settings, "SKIMLINKS_PRODUCT_ID", None)
+    if not product_id:
+        raise template.TemplateSyntaxError("Product ID must be defined in settings")
 
     # Get data from token
-    contents = list(token.split_contents())
+    contents = token.split_contents()
     len_contents = len(contents)
     if len_contents < 2:
         raise template.TemplateSyntaxError("Syntax incorrect")
+
+    # Assign variables from token, if text unavailable will be None.
+    text = None
     if len_contents == 3:
         text, link = contents[1:]
     else:
         link = contents[1]
-        text = None
 
-    if not product_id:
-        raise template.TemplateSyntaxError("Please insert Skimlinks key")
-
-    # Return node
+    # Return node.
     return SkimlinksLinkNode(
-        text,
-        link, product_id
+        text, link,
+        product_id
     )
 
+# Register do_skim template tag.
 register = template.Library()
 register.tag("skim", do_skim)
