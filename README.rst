@@ -37,7 +37,7 @@ Javascript. For this reason Django-Skinlinks uses the Link API to
 automatically generate affiliate links seamlessly and transparently.
 
 1. Get a valid Skimlinks account and PRODUCT_ID
-2. copy the 'skimlinks' directory in your project
+2. copy the ``skimlinks`` directory in your project
 3. Add social_auth to ``PYTHONPATH`` and installed applications::
 
     INSTALLED_APPS = (
@@ -62,4 +62,4 @@ automatically generate affiliate links seamlessly and transparently.
 
 6. FEEDBACK! Please fork and give suggestions!
 
-Daniel Pyrathon
+AUTHOR: [Daniel Pyrathon](https://github.com/PirosB3/Django-Skimlinks)
